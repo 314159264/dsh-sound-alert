@@ -1,0 +1,41 @@
+{
+  "name": "dsh-sound-alert",
+  "version": "1.0.0",
+  "description": "DSH 提示音插件：目标完成、代理向你提问或回答完成时，在浏览器播放提示音，支持自定义音频。Browser sound alerts for completed goals, user questions and finished answers, with custom audio support.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  },
+  "license": "Apache-2.0",
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "README.md",
+    "README.en.md"
+  ],
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "sound",
+    "notification",
+    "goal"
+  ],
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "@deepseek-ai/cordis": "^4.0.1"
+  }
+}
