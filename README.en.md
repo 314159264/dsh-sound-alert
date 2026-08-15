@@ -26,34 +26,35 @@ A sound-alert plugin for DSH (DeepSeek Harness): plays a notification sound in t
 
 ## Installation
 
-Requirements: DSH installed and run at least once (Web UI), with a user config directory `~/.dsh/profiles/<profile>` (the default profile name is `web`).
+Requirements: DSH installed and run at least once (Web UI), with a user config directory `~/.dsh/profiles/<profile>` (the default profile name is `web`). If the `DSH_HOME` environment variable is set, the config directory lives at `$DSH_HOME/profiles/<profile>` instead.
 
-### Option 1: one-click script (recommended)
+No tools to install (no npm / dsh / pnpm needed). Download from GitHub and install with one click:
 
-```bash
-# Windows PowerShell (inside the plugin directory)
-./install.ps1
+### Windows 10 / 11
 
-# macOS / Linux
-./install.sh
-```
+1. On the GitHub repo page click **Code → Download ZIP**, then extract it
+2. Enter the extracted folder and **double-click `install.cmd`** (or run `.\install.cmd` in a terminal there)
+3. When you see "OK. Installed." **fully restart DSH**
 
-The script copies the plugin to `~/.dsh/profiles/<profile>/node_modules/dsh-sound-alert/` and appends the mount entry to `cordis.patch.yml` (the default `[]` empty-sequence line is removed automatically — keeping it would make the appended content a second YAML document and fail to parse). **Then fully restart DSH** — the status strip appears above the composer once the web UI is open.
+The status strip appears above the composer once the web UI is open.
 
-### Option 2: manual
+> Install into another profile: run `.\install.cmd <profile-name>` in a terminal (default is `web`).
 
-1. Copy the whole plugin directory to `~/.dsh/profiles/<profile>/node_modules/dsh-sound-alert/`
-2. Edit `~/.dsh/profiles/<profile>/cordis.patch.yml`: **delete the default `[]` line first** (a flow-style empty sequence — keeping it breaks parsing of the entries below), then append:
+### macOS / Linux
 
-```yaml
-- insert:
-    - id: sound-alert
-      name: 'dsh-sound-alert'
-```
+1. Download and extract the ZIP, then open a terminal in that folder
+2. Run `./install.sh`
+3. **Fully restart DSH**
 
-3. Restart DSH.
+### Or let Harness install it for you
+
+Tell the DSH agent in a conversation "Install the dsh-sound-alert plugin for me" and put the downloaded plugin folder into the workspace — the agent completes the install, you only restart DSH.
+
+> The `install.cmd` / `install.ps1` / `install.sh` files in this repo are three forms of the same installer (Windows double-click, PowerShell, and bash respectively) — pick whichever fits.
 
 ## Uninstall
+
+You can also ask Harness to uninstall it for you; or do it manually:
 
 1. Remove the `sound-alert` block you appended in `cordis.patch.yml`
 2. Delete `~/.dsh/profiles/<profile>/node_modules/dsh-sound-alert/`
@@ -61,7 +62,7 @@ The script copies the plugin to `~/.dsh/profiles/<profile>/node_modules/dsh-soun
 
 ## How it works (for developers)
 
-DSH plugins are npm packages mounted through the profile's `cordis.patch.yml`:
+DSH plugins are npm packages. What the installers (`install.cmd` / `install.ps1` / `install.sh`) do is: copy the package to `~/.dsh/profiles/<profile>/node_modules/dsh-sound-alert/`, then `insert` a mount entry in the profile's `cordis.patch.yml`:
 
 - `package.json` declares the browser half via `dsh.client` (`platform: "web"` + injection order)
 - `exports["./client"]` points to a client bundle in the `window.__ModuleLoader__.load({ id, factory })` format (hand-written here — no build step)

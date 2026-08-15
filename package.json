@@ -19,7 +19,6 @@
       ]
     }
   },
-  "license": "Apache-2.0",
   "files": [
     "lib/index.js",
     "lib/client.js",
@@ -34,6 +33,15 @@
     "notification",
     "goal"
   ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/314159264/dsh-sound-alert.git"
+  },
+  "homepage": "https://github.com/314159264/dsh-sound-alert#readme",
+  "bugs": {
+    "url": "https://github.com/314159264/dsh-sound-alert/issues"
+  },
   "peerDependencies": {
     "react": "^18.2.0",
     "@deepseek-ai/cordis": "^4.0.1"

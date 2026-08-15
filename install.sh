@@ -5,11 +5,30 @@ set -euo pipefail
 
 PROFILE="${1:-web}"
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROFILE_DIR="$HOME/.dsh/profiles/$PROFILE"
+# DSH home: honour DSH_HOME (same convention as the `dsh` CLI), else ~/.dsh
+DSH_HOME="${DSH_HOME:-$HOME/.dsh}"
+case "$PROFILE" in
+  '' | '.' | '..' | */* )
+    echo "错误: 非法 profile 名: $PROFILE" >&2
+    exit 1
+    ;;
+esac
+PROFILE_DIR="$DSH_HOME/profiles/$PROFILE"
 
 if [ ! -d "$PROFILE_DIR" ]; then
   echo "错误: 找不到 DSH profile 目录: $PROFILE_DIR" >&2
   exit 1
+fi
+
+# If the profile was already installed through `dsh plugin add dsh-sound-alert`
+# (the package is a declared dependency), stop here: running this script as
+# well would mount a SECOND row with the same id and DSH would fail to boot
+# with "duplicate loader entry id".
+if [ -f "$PROFILE_DIR/package.json" ] && grep -q '"dsh-sound-alert"' "$PROFILE_DIR/package.json"; then
+  echo "检测到该 profile 已通过 \`dsh plugin add dsh-sound-alert\` 安装（package.json 依赖中已有 dsh-sound-alert）。"
+  echo "两种安装方式请勿混用：再运行本脚本会重复挂载，导致 DSH 启动报错 duplicate loader entry id。"
+  echo "直接完全重启 DSH 即可。"
+  exit 0
 fi
 
 DEST="$PROFILE_DIR/node_modules/dsh-sound-alert"
@@ -20,7 +39,7 @@ rm -rf "$DEST"
 mkdir -p "$DEST"
 # 复制包内容（排除脚本自身与临时文件）
 find "$SRC" -mindepth 1 -maxdepth 1 \
-  ! -name 'install.ps1' ! -name 'install.sh' ! -name '.git' ! -name 'node_modules' ! -name 'dist' \
+  ! -name 'install.cmd' ! -name 'install.ps1' ! -name 'install.sh' ! -name '.git' ! -name 'node_modules' ! -name 'dist' \
   -exec cp -R {} "$DEST/" \;
 
 PATCH_FILE="$PROFILE_DIR/cordis.patch.yml"

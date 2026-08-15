@@ -28,42 +28,43 @@ DSH（DeepSeek Harness）提示音插件：当**用户指定的目标完成**、
 
 ## 安装
 
-要求：已安装并运行过 DSH（Web 界面），存在用户配置目录 `~/.dsh/profiles/<profile>`（默认 profile 名是 `web`）。
+要求：已安装并运行过 DSH（Web 界面），存在用户配置目录 `~/.dsh/profiles/<profile>`（默认 profile 名是 `web`）。如果设置了 `DSH_HOME` 环境变量，配置目录则在 `$DSH_HOME/profiles/<profile>`。
 
-### 方式一：一键脚本（推荐）
+无需安装任何工具（npm / dsh / pnpm 都不需要），从 GitHub 下载后一键安装：
 
-```bash
-# Windows PowerShell（在插件目录内）
-./install.ps1
+### Windows 10 / 11
 
-# macOS / Linux
-./install.sh
-```
+1. 在 GitHub 仓库页面点 **Code → Download ZIP**，下载并解压
+2. 进入解压后的文件夹，**双击 `install.cmd`**（或在该文件夹的终端里运行 `.\install.cmd`）
+3. 看到「OK. 安装完成」后，**完全退出并重启 DSH**
 
-脚本会：把插件复制到 `~/.dsh/profiles/<profile>/node_modules/dsh-sound-alert/`，并在 `cordis.patch.yml` 追加一行挂载配置（默认文件里的 `[]` 空序列行会被自动移除——否则追加的内容会变成第二个 YAML 文档导致启动报错）。**然后重启 DSH**（完全退出再启动），打开 Web 界面即可使用——输入框上方会出现「🔔 提示音已开启」。
+打开 Web 界面即可使用——输入框上方会出现「🔔 提示音已开启」。
 
-### 方式二：手动
+> 安装到其他 profile：在终端运行 `.\install.cmd <profile名>`（默认 `web`）。
 
-1. 把整个插件目录复制为 `~/.dsh/profiles/<profile>/node_modules/dsh-sound-alert/`
-2. 编辑 `~/.dsh/profiles/<profile>/cordis.patch.yml`：**先删掉默认的 `[]` 行**（流式空序列，保留它会导致后面的条目解析失败），再追加：
+### macOS / Linux
 
-```yaml
-- insert:
-    - id: sound-alert
-      name: 'dsh-sound-alert'
-```
+1. 下载 ZIP 并解压，终端进入该文件夹
+2. 运行 `./install.sh`
+3. **完全退出并重启 DSH**
 
-3. 重启 DSH。
+### 也可以让 Harness 帮你装
+
+在 DSH 对话里说一句「帮我安装 dsh-sound-alert 插件」，把下载好的插件目录放进工作区，代理会自动完成安装，你只负责重启 DSH。
+
+> 仓库里的 `install.cmd` / `install.ps1` / `install.sh` 是同一安装器的三种形式（分别对应 Windows 双击、PowerShell、bash），内容等价，任选其一。
 
 ## 卸载
 
-1. 删除 `cordis.patch.yml` 里刚追加的 `sound-alert` 段
+同样可以让 Harness 帮你卸载；或者手动：
+
+1. 删除 `cordis.patch.yml` 里追加的 `sound-alert` 段
 2. 删除 `~/.dsh/profiles/<profile>/node_modules/dsh-sound-alert/`
 3. 重启 DSH
 
 ## 工作原理（开发者）
 
-DSH 的插件是 npm 包，通过 profile 的 `cordis.patch.yml` 挂载：
+DSH 的插件是 npm 包。安装脚本（`install.cmd` / `install.ps1` / `install.sh`）做的事就是：把包复制到 `~/.dsh/profiles/<profile>/node_modules/dsh-sound-alert/`，然后在 profile 的 `cordis.patch.yml` 里 `insert` 一行挂载条目：
 
 - `package.json` 的 `dsh.client` 声明浏览器半区（`platform: "web"` + 依赖注入顺序）
 - `exports["./client"]` 指向打包成 `window.__ModuleLoader__.load({ id, factory })` 格式的客户端 bundle（本项目手写，无需构建）
